@@ -25,3 +25,5 @@ will run on : 0.0.0.0/0.0.0.0:2181
 then: sudo bin/kafka-server-start.sh config/server.properties
 
 ----- Always leave zookeeper on when using kafka ----------------------------
+
+kafka is waiting on 0.0.0.0:9092
