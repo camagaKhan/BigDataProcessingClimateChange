@@ -13,6 +13,11 @@ https://edgar.jrc.ec.europa.eu/report_2021#data_download
 
 https://www.unep.org/explore-topics/climate-action/what-we-do/climate-action-note/state-of-climate.html?gclid=CjwKCAjwxr2iBhBJEiwAdXECw902eCZYsIEd43SLUVmo1Q_c-J0NjfzG7wA0Ebhi93e3Y1pjS-2kkhoCoZYQAvD_BwE
 
+https://ourworldindata.org/co2-dataset-sources
+
+
+-----------------------------------------------------------------------------------------------
+
 
 Apache kafka
 
@@ -27,3 +32,29 @@ then: sudo bin/kafka-server-start.sh config/server.properties
 ----- Always leave zookeeper on when using kafka ----------------------------
 
 kafka is waiting on 0.0.0.0:9092
+
+
+To Create Topic/s
+
+bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic [TOPIC_NAME]
+
+To show list of topics: 
+
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+To get details of topic
+bin/kafka-topics.sh --describe --bootstrap-server localhost:9092
+
+to start a producer
+
+bin/kafka-console-producer.sh --broker-list localhost:9090 --topic ghpdata 
+
+to read topic messages from broker (consumer)
+
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic ghpdata
+
+Zookeeper ensemble (Should be odd. We should have a consensus of N/(2+1))
+
+Topics
+ghgdata || Greenhouse gases
+
