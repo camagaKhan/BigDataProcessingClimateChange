@@ -23,7 +23,7 @@ Apache kafka
 
 In the kafka folder:
 
-sudo bin/zookeper-server-start.sh config/zookeeper.properties
+sudo bin/zookeeper-server-start.sh config/zookeeper.properties
 
 will run on : 0.0.0.0/0.0.0.0:2181
 
