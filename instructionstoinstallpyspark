@@ -1,0 +1,29 @@
+Download Spark
+
+rename tgz file to spark.tgz
+
+in the home directory
+
+mkdir spark
+
+cd spark
+
+tar -xvzf ~/Downloads/spark.tgz --strip 1
+
+cd ../
+
+install 
+
+pip3 install findspark
+
+cd spark
+
+then type pwd to get directory. copy it.
+
+/home/camagakhan/spark
+
+to add pyspark
+
+>>> import findspark
+>>> findspark.init('/home/camagakhan/spark')
+>>> import pyspark
