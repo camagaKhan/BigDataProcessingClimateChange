@@ -47,7 +47,7 @@ bin/kafka-topics.sh --describe --bootstrap-server localhost:9092
 
 to start a producer
 
-bin/kafka-console-producer.sh --broker-list localhost:9090 --topic ghpdata 
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic ghpdata 
 
 to read topic messages from broker (consumer)
 
@@ -58,3 +58,6 @@ Zookeeper ensemble (Should be odd. We should have a consensus of N/(2+1))
 Topics
 ghgdata || Greenhouse gases
 
+Instructions
+
+open Kafka directory > go to config > open server.properties in edit mode > change the log.dirs to '/assignment/kafka-logs'. This should solve the issue of lost topics after reboot
