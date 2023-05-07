@@ -34,3 +34,12 @@ Download Software:
 + Write this command: ```tar -xvzf ~/Downloads/spark.tgz --strip 1``` so that the inner files are pasted in the spark folder
 
 + ```cd spark``` and type ```pwd``` to get the directory. copy it. It should look like this ```/home/[YOUR_USER]/spark```. You will need this to update the sections were I use PySpark
+
+
+# The Solution
+
+You have a folder called ```Data```, which contains the csv datasets used for this solution. You have AIR_GHG.csv and NASA_SurfaceTemperature.ipynb. These datasets are used. I might use more
+
+In the ```kafka-config``` folder you have the basic configurations to create topics and producers for Apache Kafka
+
+In the notebooks directory, the folder is split in to ```scripts``` (these contain the basic structure of the Stream Processing mechanism). You have the ClimateChange.ipynb and the temperature.ipynb notebooks. In the ClimateChange.ipynb we use the scripts to communicate with Apache Kafka and Apache Spark (using PySpark)
