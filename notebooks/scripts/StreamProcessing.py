@@ -17,13 +17,13 @@ print('PySpark found') # this will print a simple log after findspark locates th
 
 class Stream_Data(object) :
 
-    def __init__(self, topic:str, host: str) -> None:
+    def __init__(self, topics:str, host: str) -> None:
         '''
         If multiple hosts are assigned, use this notation: host1:port,host2:port,hostn:port
         @topic: the topic you wish to subscribe to
         @host: the kafka cluster/instance
         '''
-        self.topic = topic
+        self.topics = topics
         self.host = host
 
     '''
@@ -39,7 +39,7 @@ class Stream_Data(object) :
     .getOrCreate()
     
 
-    def subsribe(self):
+    def __subsribe__(self):
         '''
             get the data after you subscribe to a Apache kafka producer. 
             @return the dataframe of the subscribed topic
@@ -48,12 +48,19 @@ class Stream_Data(object) :
         dataframe = spark.readStream \
         .format("kafka") \
         .option("kafka.bootstrap.servers", self.host) \
-        .option("kafka.security.protocol", "SSL") \
-        .option("failOnDataLoss", "false") \
-        .option("subscribe", self.topic) \
-        .option("includeHeaders", "true") \
-        .option("startingOffsets", "latest") \
-        .option("spark.streaming.kafka.maxRatePerPartition", "50") \
+        .option("subscribe", self.topics) \
+        .option("startingOffsets", "earliest") \
         .load()
 
         return dataframe
+    
+    def getData(self) :
+        df = self.__subsribe__() # subscribe to the producer
+        #topic = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+
+
+        query = df.writeStream \
+                .format('console').start()
+        
+        query.awaitTermination()
+        return query
