@@ -35,6 +35,37 @@ Download Software:
 
 + ```cd spark``` and type ```pwd``` to get the directory. copy it. It should look like this ```/home/[YOUR_USER]/spark```. You will need this to update the sections were I use PySpark
 
+**Note** I've omitted the database from github
+
+### Configuring SQL Lite 3
+
+```
+sudo apt update
+sudo apt install sqlite3
+sqlite3 --version
+```
+Output after the three commands should be similar to this
+
+> Output 3.31.1 2020-01-27 19:55:54 3bfa9cc97da10598521b342961df8f5f68c7388fa117345eeb516eaa837balt1
+
+In the project directory go to the ```Data``` folder (cd Data)
+
+Create a Database with this command: 
+
+```
+sqlite3 climatechange.db
+```
+
+Paste this line near the ```sqlite>```
+
+```
+CREATE TABLE emissions (COU text NOT NULL, Country text NOT NULL, POL text NOT NULL, Pollutant text NOT NULL, VAR text NOT NULL, Variable text NOT NULL, YEA integer NOT NULL, Year integer NOT NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NOT NULL, PowerCode text NOT NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NOT NULL, FlagCodes text NULL, Flags text NULL);
+```
+
+Since the table is empty run the following code:
+
+```PRAGMA table_info(emissions);```
+
 
 # The Solution
 

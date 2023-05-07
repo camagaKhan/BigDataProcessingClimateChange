@@ -1,0 +1,16 @@
+Use this page as a guide to install SQLite3
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-sqlite-on-ubuntu-20-04
+
+Create a DB with this command: sqlite3 climatechange.db
+
+(You should see something like this)
+sqlite>
+
+(copy and run this script here: sqlite> [HERE])
+
+CREATE TABLE emissions (COU text NOT NULL, Country text NOT NULL, POL text NOT NULL, Pollutant text NOT NULL, VAR text NOT NULL, Variable text NOT NULL, YEA integer NOT NULL, Year integer NOT NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NOT NULL, PowerCode text NOT NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NOT NULL, FlagCodes text NULL, Flags text NULL);
+
+
+Since the table is empty run this line of code to check the table details
+
+PRAGMA table_info(emissions);
