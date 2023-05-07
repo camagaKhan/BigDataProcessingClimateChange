@@ -32,7 +32,11 @@ class Stream_Data(object) :
         @return: returns a SparkSession, so you can then create the DataFrame representing the topic
     '''
     def __getSparkSession__(self):
-        return SparkSession.builder.appName('Assignment').config('spark.sql.debug.maxToStringFields', '100').getOrCreate()
+        return SparkSession \
+    .builder \
+    .appName('Assignment') \
+    .config('spark.sql.debug.maxToStringFields', '100') \
+    .getOrCreate()
     
 
     def subsribe(self):
