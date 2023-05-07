@@ -20,7 +20,7 @@ cd spark
 
 then type pwd to get directory. copy it.
 
-/home/camagakhan/spark
+/home/camagakhan/spark-3.4.0-bin-hadoop3
 
 to add pyspark
 
