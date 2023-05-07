@@ -66,6 +66,8 @@ Since the table is empty run the following code:
 
 ```PRAGMA table_info(emissions);```
 
+[You should see something like this](Images/Screenshot.png)
+
 
 # The Solution
 
