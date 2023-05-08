@@ -1,4 +1,5 @@
 import findspark as ff
+from pathlib import Path
 username = 'camagakhan' # change to your username.
 ff.init('/home/{0}/spark-3.4.0-bin-hadoop3'.format(username)) # this is the directory I installed spark. If you follow the steps on the readme file, I've highlighted how you can get this directory on Ubuntu. I use this instead of the bashrc command
 from pyspark.sql import SparkSession # don't mind the could not be resolved warning. The findspark package automatically locates the pyspark library from the directory you gave it. 
@@ -8,6 +9,9 @@ import os
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 pyspark-shell'
 
 print('PySpark found') # this will print a simple log after findspark locates the Spark installation on your workstation
+
+print('Does Data Folder exist?', Path('Data').is_dir())
+PATH = str(Path.cwd()).replace('notebooks', 'Data') # sorry about this, but Path.cwd() wasn't giving me the project directory, so I had to change it.
 
 '''
     Class is used to establish connection with Apache Kafka and will allow developers to stream data from topics
@@ -57,10 +61,15 @@ class Stream_Data(object) :
     def getData(self) :
         df = self.__subsribe__() # subscribe to the producer
         #topic = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+        db_url = 'jdbc:sqlite3:'
 
+        db_path = os.path.join(PATH, 'climatechange.db')
 
-        query = df.writeStream \
-                .format('console').start()
-        
-        query.awaitTermination()
-        return query
+        if os.path.exists(db_path):
+            print('database directory....', db_path)
+
+            query = df.writeStream \
+                    .format('console').start()
+            
+            query.awaitTermination()
+            return query
