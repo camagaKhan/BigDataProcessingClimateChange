@@ -3,6 +3,8 @@ from pathlib import Path
 username = 'camagakhan' # change to your username.
 ff.init('/home/{0}/spark-3.4.0-bin-hadoop3'.format(username)) # this is the directory I installed spark. If you follow the steps on the readme file, I've highlighted how you can get this directory on Ubuntu. I use this instead of the bashrc command
 from pyspark.sql import SparkSession # don't mind the could not be resolved warning. The findspark package automatically locates the pyspark library from the directory you gave it. 
+from pyspark.sql.functions import col, from_json
+from pyspark.sql.types import StructType, StringType, FloatType, DoubleType,  IntegerType # we will need to create a schema to save the streamed data in an sqlite3 table
 
 import os
 # you'll get an error without the following line. Refer to stack overflow: https://stackoverflow.com/questions/70725346/failed-to-find-data-source-please-deploy-the-application-as-per-the-deployment
@@ -56,20 +58,61 @@ class Stream_Data(object) :
         .option("startingOffsets", "earliest") \
         .load()
 
+        dataframe = dataframe.withColumn('value', col('value').cast('string'))
+
+        # Apply the schema to the DataFrame
+        dataframe = dataframe.select(from_json('value', self.__getEmissionsSchema__()).alias('data')).select('data.*')
+        dataframe = dataframe.withColumn('Value', col('Value').cast(DoubleType()))
+        dataframe = dataframe.withColumn('Year', col('Year').cast(IntegerType()))
+        dataframe = dataframe.withColumn('YEA', col('YEA').cast(IntegerType()))
         return dataframe
+    
+    def __getEmissionsSchema__(self):
+        '''
+        Represents the schema of the emissions dataset found in the Data folder
+        '''
+        schema = StructType().add('\ufeff"COU"', StringType())\
+        .add('Country', StringType()) \
+        .add('POL', StringType()) \
+        .add('Pollutant', StringType()) \
+        .add('VAR', StringType()) \
+        .add('Variable', StringType()) \
+        .add('YEA', StringType()) \
+        .add('Year', StringType()) \
+        .add('UnitCode', StringType()) \
+        .add('Unit', StringType()) \
+        .add('PowerCodeCode', StringType())\
+        .add('PowerCode', StringType()) \
+        .add('ReferencePeriodCode', FloatType()) \
+        .add('ReferencePeriod', FloatType()) \
+        .add('Value', StringType()) \
+        .add('FlagCodes', StringType()) \
+        .add('Flags', StringType())
+
+        return schema
     
     def getData(self) :
         df = self.__subsribe__() # subscribe to the producer
+        for col in df.dtypes:
+            print(col[0]+" , "+col[1])
         #topic = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
-        db_url = 'jdbc:sqlite3:'
+        db_url = 'jdbc:sqlite:'
 
         db_path = os.path.join(PATH, 'climatechange.db')
+        full_path = db_url + db_path #os.path.join(db_url, db_path)
+        print('full path',full_path)
 
         if os.path.exists(db_path):
             print('database directory....', db_path)
 
             query = df.writeStream \
                     .format('console').start()
+
+            # query = df.writeStream \
+            #         .format('jdbc') \
+            #         .option('url', full_path) \
+            #         .option('dbtable', 'emissions') \
+            #         .start()
             
             query.awaitTermination()
             return query
