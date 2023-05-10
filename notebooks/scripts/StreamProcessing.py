@@ -1,6 +1,7 @@
 import findspark as ff
 import sqlite3 as sql
 from pathlib import Path
+import time
 import re
 username = 'camagakhan' # change to your username.
 ff.init('/home/{0}/spark-3.4.0-bin-hadoop3'.format(username)) # this is the directory I installed spark. If you follow the steps on the readme file, I've highlighted how you can get this directory on Ubuntu. I use this instead of the bashrc command
@@ -118,11 +119,19 @@ class Stream_Data(object) :
         
         self.columns = df.columns
         
+        start = time.time()
         # mode will drop the table and recreate it with the current dataframe data
         query = (df.writeStream
                 .format('jdbc')
                 .foreach(self.__write__)
                 .start())
+
+        # while query.isActive:
+        #     # do stuff
+        #     pass
+        end = time.time()
+        total_time = end - start
+        print('[BEHOLD] Data is added in the table. TOTAL TIME: ', total_time/3600)
         
         #query.awaitTermination()
         return query
