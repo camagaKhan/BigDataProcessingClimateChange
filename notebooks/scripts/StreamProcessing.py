@@ -8,10 +8,13 @@ ff.init('/home/{0}/spark-3.4.0-bin-hadoop3'.format(username)) # this is the dire
 from pyspark.sql import SparkSession # don't mind the could not be resolved warning. The findspark package automatically locates the pyspark library from the directory you gave it. 
 from pyspark.sql.functions import col, from_json
 from pyspark.sql.types import StructType, StringType, FloatType, DoubleType, IntegerType # we will need to create a schema to save the streamed data in an sqlite3 table
+from pyspark import SparkContext
+import warnings
 
 import os
 # you'll get an error without the following line. Refer to stack overflow: https://stackoverflow.com/questions/70725346/failed-to-find-data-source-please-deploy-the-application-as-per-the-deployment
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 pyspark-shell'
+os.environ['SPARK_OPTS'] = '--packages graphframes:graphframes:0.8.2-spark2.4-s_2.11' #SPARK_OPTS="--packages graphframes:graphframes:0.8.2-spark2.4-s_2.11"
 
 print('PySpark found') # this will print a simple log after findspark locates the Spark installation on your workstation
 
@@ -24,7 +27,7 @@ PATH = str(Path.cwd()).replace('notebooks', 'Data') # sorry about this, but Path
     It uses an instance called SparkSession. This page provides an explanation about the pyspark.sql.SparkSession. Click on the link:
     https://spark.apache.org/docs/3.1.1/api/python/reference/api/pyspark.sql.SparkSession.html
 '''
-
+warnings.filterwarnings('ignore')
 class Stream_Data(object) :
 
     def __init__(self, topics:str, host: str) -> None:
@@ -43,7 +46,12 @@ class Stream_Data(object) :
     '''
     def __getSparkSession__(self):
         sqlite_jar = self.__getSQLiteDir__() # the directory of the sqlite jar
-        return (SparkSession 
+        graphframes_jar = '{0}/scripts/graphframes-0.8.2-spark2.4-s_2.11.jar'.format(os.getcwd())
+
+        #jars = ','.join([sqlite_jar, graphframes_jar])
+        #print(jars)
+
+        pySparkSession = (SparkSession 
                 .builder 
                 .appName('Assignment') 
                 .config(
@@ -55,6 +63,14 @@ class Stream_Data(object) :
                     sqlite_jar
                 )
                 .getOrCreate())
+        
+        sc = pySparkSession.sparkContext
+        sc.addPyFile(graphframes_jar)
+        sc.setLogLevel('ERROR') # warnings we can do without. Just show errors and fatal errors
+
+        return pySparkSession
+    
+
 
     def __getSQLiteDir__(self):
         '''
@@ -118,23 +134,12 @@ class Stream_Data(object) :
                 .format('console').start())
         
         self.columns = df.columns
-        
-        start = time.time()
-        # mode will drop the table and recreate it with the current dataframe data
+        #mode will drop the table and recreate it with the current dataframe data
         query = (df.writeStream
                 .format('jdbc')
                 .foreach(self.__write__)
                 .start())
-
-        # while query.isActive:
-        #     # do stuff
-        #     pass
-        end = time.time()
-        total_time = end - start
-        print('[BEHOLD] Data is added in the table. TOTAL TIME: ', total_time/3600)
-        
-        #query.awaitTermination()
-        return query
+        return query, df
     
     def __query__(self, table_name, columns):
         column_count = len(columns)
@@ -143,7 +148,7 @@ class Stream_Data(object) :
         
     def __write__(self, row):        
         table_name ='emissions'
-        db_path = os.path.join(PATH, 'climatechange.db')       
+        db_path = os.path.join(PATH, 'climatechange.db')     
 
         if os.path.exists(db_path):            
             values = list()
