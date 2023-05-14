@@ -1,0 +1,33 @@
+Use this page as a guide to install my sql server:
+https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04
+
+
+Always ensure that the mySQL server is on by running this command: sudo systemctl start mysql.service and then this command 'sudo systemctl status mysql.service'
+To Stop the server run this command: 'sudo systemctl stop mysql.service'
+
+To log in to mysql use: mysql -u user1 -p 
+Enter your password.
+
+CREATE USER 'user1'@'localhost' IDENTIFIED BY 'P@ss123!';
+
+user: user1@localhost
+password:P@ss123!
+
+
+Create a DB with this command: CREATE DATABASE climatechange;
+
+To use the newly created database: USE climatechange;
+
+
+(copy and run this script here: sqlite> [HERE])
+
+CREATE TABLE ghg_data (COU text NULL, Country text NULL, POL text NULL, Pollutant text NULL, VAR text NULL, Variable text NULL, YEA integer NULL, Year integer NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NULL, PowerCode text NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NULL, FlagCodes text NULL, Flags text NULL);
+
+CREATE TABLE temperature (REF_AREA text NULL, Measure text NULL, UNIT_MEASURE text NULL, TIME_PERIOD integer NULL, OBS_VALUE real NULL, REF_CODE text NULL);
+
+
+Use this command to show tables: SHOW TABLES;
+
+Since the table is empty run this line of code to check the table details
+
+PRAGMA table_info(emissions);

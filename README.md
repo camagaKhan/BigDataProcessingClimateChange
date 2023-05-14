@@ -10,6 +10,7 @@ Hi, for this assignment we'll be using **Apache Kafka** and **Apache Spark**. Th
 ```
 pip install kafka-python
 pip3 install findspark
+pip install mysql-connector-python
 
 ```
 
@@ -35,28 +36,34 @@ Download Software:
 
 + ```cd spark``` and type ```pwd``` to get the directory. copy it. It should look like this ```/home/[YOUR_USER]/spark```. You will need this to update the sections were I use PySpark
 
++ I've included the jar files for ```graphframes``` 
+
 **Note** I've omitted the database from github
 
-### Configuring SQL Lite 3
+### Configuring mySQL 
 
-```
-sudo apt update
-sudo apt install sqlite3
-sqlite3 --version
-```
-Output after the three commands should be similar to this
+https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04
 
-> Output 3.31.1 2020-01-27 19:55:54 3bfa9cc97da10598521b342961df8f5f68c7388fa117345eeb516eaa837balt1
+Always ensure that the mySQL server is on by running this command: sudo systemctl start mysql.service and then this command 'sudo systemctl status mysql.service'
+To Stop the server run this command: 'sudo systemctl stop mysql.service'
 
-In the project directory go to the ```Data``` folder (cd Data)
+Log in as root: ```sudo mysql```
 
-Create a Database with this command: 
+It should prompt you to input your log in password
 
-```
-sqlite3 climatechange.db
-```
+FIRST create a user: 
 
-Paste this line near the ```sqlite>```
+```CREATE USER 'user1'@'localhost' IDENTIFIED BY 'P@ss123!';```
+
+then run this command (to create the DB):
+
+```CREATE DATABASE climatechange;```
+
+This command grants access to the created user (the one we created earlier on):
+
+```GRANT ALL ON climatechange.* TO 'user1'@'localhost';```
+
+Run the following scripts to generate the tables 
 
 ```
 CREATE TABLE ghg_data (COU text NULL, Country text NULL, POL text NULL, Pollutant text NULL, VAR text NULL, Variable text NULL, YEA integer NULL, Year integer NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NULL, PowerCode text NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NULL, FlagCodes text NULL, Flags text NULL);
@@ -69,9 +76,9 @@ CREATE TABLE temperature (REF_AREA text NULL, Measure text NULL, UNIT_MEASURE te
 
 Since the table is empty run the following code:
 
-```PRAGMA table_info(ghg_data);``` and ```PRAGMA table_info(temperature);```
+```DESCRIBE ghg_data;``` and ```DESCRIBE temperature;```
 
-[You should see something like this](Images/Screenshot.png)
+[You should see something like this](Images/table_details.png)
 
 ***Note*** the screenshot shows another table name. The table emissions was renamed to ghg_data. Thanks
 
