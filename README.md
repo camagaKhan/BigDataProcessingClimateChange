@@ -59,14 +59,21 @@ sqlite3 climatechange.db
 Paste this line near the ```sqlite>```
 
 ```
-CREATE TABLE emissions (COU text NOT NULL, Country text NOT NULL, POL text NOT NULL, Pollutant text NOT NULL, VAR text NOT NULL, Variable text NOT NULL, YEA integer NOT NULL, Year integer NOT NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NOT NULL, PowerCode text NOT NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NOT NULL, FlagCodes text NULL, Flags text NULL);
+CREATE TABLE ghg_data (COU text NULL, Country text NULL, POL text NULL, Pollutant text NULL, VAR text NULL, Variable text NULL, YEA integer NULL, Year integer NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NULL, PowerCode text NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NULL, FlagCodes text NULL, Flags text NULL);
+
+```
+
+```
+CREATE TABLE temperature (REF_AREA text NULL, Measure text NULL, UNIT_MEASURE text NULL, TIME_PERIOD integer NULL, OBS_VALUE real NULL, REF_CODE text NULL);
 ```
 
 Since the table is empty run the following code:
 
-```PRAGMA table_info(emissions);```
+```PRAGMA table_info(ghg_data);``` and ```PRAGMA table_info(temperature);```
 
 [You should see something like this](Images/Screenshot.png)
+
+***Note*** the screenshot shows another table name. The table emissions was renamed to ghg_data. Thanks
 
 
 # The Solution

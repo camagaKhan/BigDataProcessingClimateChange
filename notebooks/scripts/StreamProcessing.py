@@ -96,12 +96,31 @@ class Stream_Data(object) :
 
         dataframe = dataframe.withColumn('value', col('value').cast('string'))
 
-        # Apply the schema to the DataFrame
-        dataframe = dataframe.select(from_json('value', self.__getEmissionsSchema__()).alias('data')).select('data.*')
-        dataframe = dataframe.withColumn('Value', col('Value').cast(DoubleType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
-        dataframe = dataframe.withColumn('Year', col('Year').cast(IntegerType()))
-        dataframe = dataframe.withColumn('YEA', col('YEA').cast(IntegerType()))
+        if self.topics == 'ghg_data':
+            # Apply the schema to the 'emissions' DataFrame
+            dataframe = dataframe.select(from_json('value', self.__getEmissionsSchema__()).alias('data')).select('data.*')
+            dataframe = dataframe.withColumn('Value', col('Value').cast(DoubleType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
+            dataframe = dataframe.withColumn('Year', col('Year').cast(IntegerType()))
+            dataframe = dataframe.withColumn('YEA', col('YEA').cast(IntegerType()))
+        elif self.topics == 'temperature':
+            # Apply the schema to the 'temperature' DataFrame
+            dataframe = dataframe.select(from_json('value', self.__temperatureSchema__()).alias('data')).select('data.*')
+            dataframe = dataframe.withColumn('TIME_PERIOD', col('Value').cast(IntegerType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
+            dataframe = dataframe.withColumn('OBS_VALUE', col('Year').cast(DoubleType()))
+
         return dataframe
+    
+    def __temperatureSchema__(self):
+        schema = (
+            StructType()
+            .add('REF_AREA', StringType())
+            .add('Measure', StringType())
+            .add('UNIT_MEASURE', StringType())
+            .add('TIME_PERIOD', StringType())
+            .add('OBS_VALUE', StringType())
+            .add('REF_CODE', StringType())
+        )
+        return schema
     
     def __getEmissionsSchema__(self):
         '''
@@ -133,7 +152,7 @@ class Stream_Data(object) :
         query = (df.writeStream 
                 .format('console').start())
         
-        self.columns = df.columns
+        self.columns = df.columns # we'll need this to map to the table later on
         #mode will drop the table and recreate it with the current dataframe data
         query = (df.writeStream
                 .format('jdbc')
@@ -147,7 +166,11 @@ class Stream_Data(object) :
         return """INSERT INTO {table} ({columns}) VALUES ({values});""".format(table=table_name, columns=col_names, values=values)
         
     def __write__(self, row):        
-        table_name ='emissions'
+        table_name ='ghg_data'
+
+        if self.topics == 'temperature':
+            table_name = 'temperature'
+
         db_path = os.path.join(PATH, 'climatechange.db')     
 
         if os.path.exists(db_path):            
