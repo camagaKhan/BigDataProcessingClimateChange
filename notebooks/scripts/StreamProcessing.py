@@ -76,6 +76,7 @@ class Stream_Data(object) :
         
         sc = pySparkSession.sparkContext
         sc.addPyFile(graphframes_jar)
+        sc.addPyFile(mySQL_jar)
         sc.setLogLevel('ERROR') # warnings we can do without. Just show errors and fatal errors
 
         return pySparkSession
@@ -109,6 +110,7 @@ class Stream_Data(object) :
         if self.topics == 'ghg_data':
             # Apply the schema to the 'emissions' DataFrame
             dataframe = dataframe.select(from_json('value', self.__getEmissionsSchema__()).alias('data')).select('data.*')
+            dataframe = dataframe.withColumnRenamed('\ufeff"PREFIX"', 'PREFIX')
             dataframe = dataframe.withColumn('Value', col('Value').cast(DoubleType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
             dataframe = dataframe.withColumn('Year', col('Year').cast(IntegerType()))
             dataframe = dataframe.withColumn('YEA', col('YEA').cast(IntegerType()))
@@ -140,7 +142,7 @@ class Stream_Data(object) :
         '''
         Represents the schema of the emissions dataset found in the Data folder
         '''
-        schema = (StructType().add('\ufeff"COU"', StringType())
+        schema = (StructType().add('\ufeff"PREFIX"', StringType())
         .add('Country', StringType()) 
         .add('POL', StringType()) 
         .add('Pollutant', StringType()) 
@@ -168,10 +170,19 @@ class Stream_Data(object) :
         
         self.columns = df.columns # we'll need this to map to the table later on
 
+        # writing to mySQL
         query = (df.writeStream
-                .format('jdbc')
-                .foreach(self.__write__)
-                .start())
+                 .outputMode('append')
+                 .foreachBatch(self.__write__)
+                 .start()
+                 )
+        
+        #query.awaitTermination()
+
+        # query = (df.writeStream
+        #         .format('jdbc')
+        #         .foreach(self.__write__)
+        #         .start())
         
         return query, df
     
@@ -186,23 +197,32 @@ class Stream_Data(object) :
         values, col_names = ', '.join([ "%s" for _ in range(column_count)]), ', '.join([ re.sub(r'^\ufeff', '', col).replace('"', '') for col in columns])
         return """INSERT INTO {table} ({columns}) VALUES ({values});""".format(table=table_name, columns=col_names, values=values)
         
-    def __write__(self, row):  
+    def __write__(self, row, epoch_id):  
         '''
         Writes the value in the respective table using a MySQL INSERT statement. Once the values of the streaming data are added to the database then
         we commit the values to the SQL table
         '''      
-        conn = mysql.connector.connect(**sqlConfiguration)
+        #conn = mysql.connector.connect(**sqlConfiguration)
         table_name ='ghg_data'
 
         if self.topics == 'temperature':
             table_name = 'temperature'
+
+        (row.write.format('jdbc')
+         .options(
+            url='jdbc:mysql://localhost:3306/climatechange',
+            driver='com.mysql.jdbc.Driver',
+            dbtable = table_name,
+            user='user1',
+            password='P@ss123!'
+         ).mode('append').save())
                    
-        values = list()
-        for column in self.columns:
-            values.append(row[column])
-        values = tuple(values)
-        insert_qry = self.__query__(table_name=table_name, columns=self.columns)
-        cursor = conn.cursor()
-        cursor.execute(insert_qry, values)
-        cursor.close()
-        conn.commit()
+        # values = list()
+        # for column in self.columns:
+        #     values.append(row[column])
+        # values = tuple(values)
+        # insert_qry = self.__query__(table_name=table_name, columns=self.columns)
+        # cursor = conn.cursor()
+        # cursor.execute(insert_qry, values)
+        # cursor.close()
+        # conn.commit()

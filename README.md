@@ -66,7 +66,7 @@ This command grants access to the created user (the one we created earlier on):
 Run the following scripts to generate the tables 
 
 ```
-CREATE TABLE ghg_data (COU text NULL, Country text NULL, POL text NULL, Pollutant text NULL, VAR text NULL, Variable text NULL, YEA integer NULL, Year integer NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NULL, PowerCode text NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NULL, FlagCodes text NULL, Flags text NULL);
+CREATE TABLE ghg_data (PREFIX text NULL, Country text NULL, POL text NULL, Pollutant text NULL, VAR text NULL, Variable text NULL, YEA integer NULL, Year integer NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NULL, PowerCode text NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NULL, FlagCodes text NULL, Flags text NULL);
 
 ```
 
