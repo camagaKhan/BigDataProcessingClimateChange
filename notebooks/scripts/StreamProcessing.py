@@ -5,7 +5,8 @@ import time
 import re
 import sys
 username = 'camagakhan' # change to your username.
-ff.init('/home/{0}/spark-3.4.0-bin-hadoop3'.format(username)) # this is the directory I installed spark. If you follow the steps on the readme file, I've highlighted how you can get this directory on Ubuntu. I use this instead of the bashrc command
+SPARK_PATH = '/home/{0}/spark-3.4.0-bin-hadoop3'.format(username)
+ff.init(SPARK_PATH) # this is the directory I installed spark. If you follow the steps on the readme file, I've highlighted how you can get this directory on Ubuntu. I use this instead of the bashrc command
 from pyspark.sql import SparkSession # don't mind the could not be resolved warning. The findspark package automatically locates the pyspark library from the directory you gave it. 
 from pyspark.sql.functions import col, from_json
 from pyspark.sql.types import StructType, StringType, FloatType, DoubleType, IntegerType # we will need to create a schema to save the streamed data in an sqlite3 table
@@ -51,6 +52,9 @@ class Stream_Data(object) :
         self.topics = topics
         self.host = host
         #self.sqlConnection = mysql.connector.connect(user='user1', host='localhost', password='P@ss123!', database='climatechange')
+
+    def getSpark_Path (self):
+        return SPARK_PATH
 
     '''
         function creates a spark session that will enable users to perform streaming techniques.
