@@ -15,7 +15,7 @@ import warnings
 import os
 # you'll get an error without the following line. Refer to stack overflow: https://stackoverflow.com/questions/70725346/failed-to-find-data-source-please-deploy-the-application-as-per-the-deployment
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-10_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0 pyspark-shell'
-os.environ['SPARK_OPTS'] = '--packages graphframes:graphframes:0.8.2-spark2.4-s_2.11' #SPARK_OPTS="--packages graphframes:graphframes:0.8.2-spark2.4-s_2.11"
+os.environ['SPARK_OPTS'] = '--packages graphframes:graphframes-0.8.2-spark3.2-s_2.12' #SPARK_OPTS="--packages graphframes:graphframes:0.8.2-spark2.4-s_2.11"
 os.environ['PYSPARK_PYTHON'] = sys.executable
 os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable
 
@@ -58,25 +58,26 @@ class Stream_Data(object) :
         @return: returns a SparkSession, so you can then create the DataFrame representing the topic
     '''
     def __getSparkSession__(self):
-        mySQL_jar = self.__getMySQLDir__() # the directory of the sqlite jar
-        graphframes_jar = '{0}/scripts/graphframes-0.8.2-spark2.4-s_2.11.jar'.format(os.getcwd())
+        mySQL_jar = self.__getMySQLDir__() # the directory of the mySQL jar
+        graphframes_jar = '{0}/scripts/graphframes-0.8.2-spark3.2-s_2.12.jar'.format(os.getcwd())
+        print(graphframes_jar)
 
         pySparkSession = (SparkSession 
                 .builder 
                 .appName('Assignment') 
                 .config(
                     'spark.jars',
-                    mySQL_jar
+                    ','.join([mySQL_jar, graphframes_jar])
                 )
                 .config(
                     'spark.driver.extraClassPath',
-                    mySQL_jar
+                    ','.join([mySQL_jar, graphframes_jar])
                 )
                 .getOrCreate())
         
         sc = pySparkSession.sparkContext
         sc.addPyFile(graphframes_jar)
-        sc.addPyFile(mySQL_jar)
+        #sc.addPyFile(mySQL_jar
         sc.setLogLevel('ERROR') # warnings we can do without. Just show errors and fatal errors
 
         return pySparkSession
@@ -110,7 +111,7 @@ class Stream_Data(object) :
         if self.topics == 'ghg_data':
             # Apply the schema to the 'emissions' DataFrame
             dataframe = dataframe.select(from_json('value', self.__getEmissionsSchema__()).alias('data')).select('data.*')
-            dataframe = dataframe.withColumnRenamed('\ufeff"PREFIX"', 'PREFIX')
+            dataframe = dataframe.withColumnRenamed('\ufeff"PREFIX"', 'PREFIX') # renamed the column as it added additional characters and kept giving me bugs while saving
             dataframe = dataframe.withColumn('Value', col('Value').cast(DoubleType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
             dataframe = dataframe.withColumn('Year', col('Year').cast(IntegerType()))
             dataframe = dataframe.withColumn('YEA', col('YEA').cast(IntegerType()))
@@ -120,7 +121,7 @@ class Stream_Data(object) :
             dataframe = dataframe.withColumn('TIME_PERIOD', col('TIME_PERIOD').cast(IntegerType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
             dataframe = dataframe.withColumn('OBS_VALUE', col('OBS_VALUE').cast(DoubleType()))
 
-        return dataframe
+        return spark, dataframe
     
     def __temperatureSchema__(self):
         '''
@@ -163,7 +164,7 @@ class Stream_Data(object) :
         return schema
     
     def getData(self) :
-        df = self.__subsribe__() # subscribe to the producer
+        session, df = self.__subsribe__() # subscribe to the producer
         #self.__dataframe__ = df
         query = (df.writeStream 
                 .format('console').start())
@@ -178,20 +179,15 @@ class Stream_Data(object) :
                  )
         
         #query.awaitTermination()
-
-        # query = (df.writeStream
-        #         .format('jdbc')
-        #         .foreach(self.__write__)
-        #         .start())
         
-        return query, df
+        return session, query, df
     
     def getDataframe(self) :
         return self.__dataframe__
     
     def __query__(self, table_name, columns):
         '''
-        Creates an insert statement 
+        Creates an insert statement [Removed]
         '''
         column_count = len(columns)
         values, col_names = ', '.join([ "%s" for _ in range(column_count)]), ', '.join([ re.sub(r'^\ufeff', '', col).replace('"', '') for col in columns])
@@ -217,7 +213,7 @@ class Stream_Data(object) :
             password='P@ss123!'
          ).mode('append').save())
                    
-        # values = list()
+        # values = list() # code uses mysql package. Don't run this. it is very slow.
         # for column in self.columns:
         #     values.append(row[column])
         # values = tuple(values)
