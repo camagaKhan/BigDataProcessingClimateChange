@@ -115,7 +115,7 @@ class Stream_Data(object) :
         if self.topics == 'ghg_data':
             # Apply the schema to the 'emissions' DataFrame
             dataframe = dataframe.select(from_json('value', self.__getEmissionsSchema__()).alias('data')).select('data.*')
-            dataframe = dataframe.withColumnRenamed('\ufeff"PREFIX"', 'PREFIX') # renamed the column as it added additional characters and kept giving me bugs while saving
+            #dataframe = dataframe.withColumnRenamed('\ufeff"PREFIX"', 'PREFIX') # renamed the column as it added additional characters and kept giving me bugs while saving
             dataframe = dataframe.withColumn('Value', col('Value').cast(DoubleType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
             dataframe = dataframe.withColumn('Year', col('Year').cast(IntegerType()))
             dataframe = dataframe.withColumn('YEA', col('YEA').cast(IntegerType()))
@@ -147,7 +147,7 @@ class Stream_Data(object) :
         '''
         Represents the schema of the emissions dataset found in the Data folder
         '''
-        schema = (StructType().add('\ufeff"PREFIX"', StringType())
+        schema = (StructType().add('PREFIX', StringType())
         .add('Country', StringType()) 
         .add('POL', StringType()) 
         .add('Pollutant', StringType()) 
