@@ -226,3 +226,77 @@ class Stream_Data(object) :
         # cursor.execute(insert_qry, values)
         # cursor.close()
         # conn.commit()
+
+    def storeData(self, table_name, dataframe):
+        self.table_name = table_name
+        (dataframe.writeStream
+        .outputMode('append')
+        .foreachBatch(self.__store__)
+        .start())
+        
+
+    def __store__(self, batch, epoch_id):
+        (batch.write.format('jdbc')
+         .options(
+            url='jdbc:mysql://localhost:3306/climatechange',
+            driver='com.mysql.jdbc.Driver',
+            dbtable = self.table_name,
+            user='user1',
+            password='P@ss123!'
+         ).mode('append').save())
+        
+
+
+class ClimateChangeDataset(object):
+
+    def __init__(self, table = 'climate_change') -> None:
+        self.table = table
+
+    def __getMySQLDir__(self):
+        '''
+        @return: function returns the sqlite jar file. This is conventiently stored in this project.
+        '''
+        directory = '{}/scripts/mysql-connector-j-8.0.33.jar'.format(os.getcwd())
+        return directory
+
+    def __getSparkSession__(self):
+        
+        mySQL_jar = self.__getMySQLDir__() # the directory of the mySQL jar
+        graphframes_jar = '{0}/scripts/graphframes-0.8.2-spark3.2-s_2.12.jar'.format(os.getcwd())
+        print(graphframes_jar)
+
+        pySparkSession = (SparkSession 
+                .builder 
+                .appName('ML Dataset') 
+                .config(
+                    'spark.jars',
+                    ','.join([mySQL_jar, graphframes_jar])
+                )
+                .config(
+                    'spark.driver.extraClassPath',
+                    ','.join([mySQL_jar, graphframes_jar])
+                )
+                .getOrCreate())
+        
+        sc = pySparkSession.sparkContext
+        sc.addPyFile(graphframes_jar)
+        #sc.addPyFile(mySQL_jar
+        sc.setLogLevel('ERROR') # warnings we can do without. Just show errors and fatal errors
+
+        return pySparkSession
+    
+
+    def loadDataset(self):
+        spark = self.__getSparkSession__()
+
+        df = (
+            spark.read
+            .format('jdbc')
+            .option('url', 'jdbc:mysql://localhost:3306/climatechange')
+            .option('dbtable', self.table)
+            .option('driver', 'com.mysql.cj.jdbc.Driver')
+            .option('user', 'user1')
+            .option('password', 'P@ss123!')
+            .load()
+        )
+        return df

@@ -74,6 +74,13 @@ CREATE TABLE ghg_data (PREFIX text NULL, Country text NULL, POL text NULL, Pollu
 CREATE TABLE temperature (REF_AREA text NULL, Measure text NULL, UNIT_MEASURE text NULL, TIME_PERIOD integer NULL, OBS_VALUE real NULL, REF_CODE text NULL);
 ```
 
+For the Machine Learning section create these tables.
+
+```
+CREATE TABLE climate_change(COUNTRY_CODE text NULL, Country text NULL, Year integer NULL, UNIT_MEASURE text NULL, OBS_VALUE real NULL, POL text NULL, VAR text NULL, VALUE real NULL);
+
+```
+
 Since the table is empty run the following code:
 
 ```DESCRIBE ghg_data;``` and ```DESCRIBE temperature;```
