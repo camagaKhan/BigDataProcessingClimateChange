@@ -118,7 +118,6 @@ class Stream_Data(object) :
             #dataframe = dataframe.withColumnRenamed('\ufeff"PREFIX"', 'PREFIX') # renamed the column as it added additional characters and kept giving me bugs while saving
             dataframe = dataframe.withColumn('Value', col('Value').cast(DoubleType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
             dataframe = dataframe.withColumn('Year', col('Year').cast(IntegerType()))
-            dataframe = dataframe.withColumn('YEA', col('YEA').cast(IntegerType()))
         elif self.topics == 'temperature':
             # Apply the schema to the 'temperature' DataFrame
             dataframe = dataframe.select(from_json('value', self.__temperatureSchema__()).alias('data')).select('data.*')
@@ -147,23 +146,11 @@ class Stream_Data(object) :
         '''
         Represents the schema of the emissions dataset found in the Data folder
         '''
-        schema = (StructType().add('PREFIX', StringType())
+        schema = (StructType()
         .add('Country', StringType()) 
-        .add('POL', StringType()) 
         .add('Pollutant', StringType()) 
-        .add('VAR', StringType()) 
-        .add('Variable', StringType())
-        .add('YEA', StringType())
         .add('Year', StringType())
-        .add('UnitCode', StringType())
-        .add('Unit', StringType())
-        .add('PowerCodeCode', StringType())
-        .add('PowerCode', StringType())
-        .add('ReferencePeriodCode', FloatType())
-        .add('ReferencePeriod', FloatType())
-        .add('Value', StringType())
-        .add('FlagCodes', StringType())
-        .add('Flags', StringType()))
+        .add('Value', StringType()))
 
         return schema
     

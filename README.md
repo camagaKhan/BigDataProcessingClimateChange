@@ -66,7 +66,7 @@ This command grants access to the created user (the one we created earlier on):
 Run the following scripts to generate the tables 
 
 ```
-CREATE TABLE ghg_data (PREFIX text NULL, Country text NULL, POL text NULL, Pollutant text NULL, VAR text NULL, Variable text NULL, YEA integer NULL, Year integer NULL, UnitCode text NULL, Unit text NULL, PowerCodeCode integer NULL, PowerCode text NULL, ReferencePeriodCode real NULL, ReferencePeriod real NULL, Value real NULL, FlagCodes text NULL, Flags text NULL);
+CREATE TABLE ghg_data(Country text NULL, Year integer NULL, Value real NULL, Pollutant text NULL);
 
 ```
 
@@ -77,7 +77,7 @@ CREATE TABLE temperature (REF_AREA text NULL, Measure text NULL, UNIT_MEASURE te
 For the Machine Learning section create these tables.
 
 ```
-CREATE TABLE climate_change(COUNTRY_CODE text NULL, Country text NULL, Year integer NULL, UNIT_MEASURE text NULL, OBS_VALUE real NULL, POL text NULL, VAR text NULL, VALUE real NULL);
+CREATE TABLE climate_change(COUNTRY_CODE text NULL, Country text NULL, Year integer NULL, UNIT_MEASURE text NULL, OBS_VALUE real NULL, POL text NULL, VALUE real NULL);
 
 ```
 
