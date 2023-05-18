@@ -67,6 +67,7 @@ Run the following scripts to generate the tables
 
 ```
 CREATE TABLE ghg_data(Country text NULL, Year integer NULL, Value real NULL, Pollutant text NULL);
+CREATE TABLE CO2(Entity text NULL, Code text NULL, Year integer NULL, Value real NULL);
 
 ```
 
@@ -78,6 +79,8 @@ For the Machine Learning section create these tables.
 
 ```
 CREATE TABLE climate_change(COUNTRY_CODE text NULL, Country text NULL, Year integer NULL, UNIT_MEASURE text NULL, OBS_VALUE real NULL, POL text NULL, VALUE real NULL);
+
+CREATE TABLE C02ML(COUNTRY_CODE text NULL, Country text NULL, Year integer NULL, UNIT_MEASURE text NULL, OBS_VALUE real NULL, POL text NULL, VALUE real NULL);
 
 ```
 

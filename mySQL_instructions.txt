@@ -30,6 +30,8 @@ CREATE TABLE climate_change(COUNTRY_CODE text NULL, Country text NULL, Year inte
 
 CREATE TABLE ghg_data(Country text NULL, Year integer NULL, Value real NULL, Pollutant text NULL);
 
+CREATE TABLE CO2(Entity text NULL, Code text NULL, Year integer NULL, Value real NULL);
+
 Use this command to show tables: SHOW TABLES;
 
 Since the table is empty run this line of code to check the table details

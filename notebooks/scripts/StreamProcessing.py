@@ -124,7 +124,27 @@ class Stream_Data(object) :
             dataframe = dataframe.withColumn('TIME_PERIOD', col('TIME_PERIOD').cast(IntegerType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
             dataframe = dataframe.withColumn('OBS_VALUE', col('OBS_VALUE').cast(DoubleType()))
 
+        elif self.topics == 'C02':
+            # Apply the schema to the 'temperature' DataFrame
+            dataframe = dataframe.select(from_json('value', self.__C02Schema__()).alias('data')).select('data.*')
+            dataframe = dataframe.withColumn('Value', col('Value').cast(DoubleType())) # not to be confused with value which is a Kafka property (the row value encoded in bytes). The Value column here represents the ghg value
+            dataframe = dataframe.withColumn('Year', col('Year').cast(IntegerType()))
+
         return spark, dataframe
+    
+    def __C02Schema__(self):
+        '''
+        Sets the C02 schema
+        @returns the temperature schema used
+        '''
+        schema = (
+            StructType()
+            .add('Entity', StringType())
+            .add('Code', StringType())
+            .add('Year', StringType())
+            .add('Value', StringType())
+        )
+        return schema
     
     def __temperatureSchema__(self):
         '''
@@ -194,6 +214,8 @@ class Stream_Data(object) :
 
         if self.topics == 'temperature':
             table_name = 'temperature'
+        elif self.topics == 'C02':
+            table_name = 'C02'
 
         (row.write.format('jdbc')
          .options(
