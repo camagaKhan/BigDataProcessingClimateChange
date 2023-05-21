@@ -11,6 +11,8 @@ Hi, for this assignment we'll be using **Apache Kafka** and **Apache Spark**. Th
 pip install kafka-python
 pip3 install findspark
 pip install mysql-connector-python
+pip install -U scikit-learn
+python -m pip install statsmodels
 
 ```
 
@@ -95,8 +97,10 @@ Since the table is empty run the following code:
 
 # The Solution
 
-You have a folder called ```Data```, which contains the csv datasets used for this solution. You have AIR_GHG.csv and NASA_SurfaceTemperature.ipynb. These datasets are used. I might use more
+You have a folder called ```Data```, which contains the csv datasets used for this solution. You have AIR_GHG.csv and NASA_SurfaceTemperature.ipynb. These datasets are used. I might use more. these are now located in the ```Old``` folder. Any datasource I use are located in the ```Data``` folder.
 
-In the ```kafka-config``` folder you have the basic configurations to create topics and producers for Apache Kafka
+In the ```notebooks``` folder and the ```kafka-config.ipynb``` file you have the basic configurations to create topics and producers for Apache Kafka.
 
-In the notebooks directory, the folder is split in to ```scripts``` (these contain the basic structure of the Stream Processing mechanism). You have the ClimateChange.ipynb and the temperature.ipynb notebooks. In the ClimateChange.ipynb we use the scripts to communicate with Apache Kafka and Apache Spark (using PySpark)
+In the ```climatechange.ipynb``` you have everything you need about the climate change polynomial regression. ```StreamProcessing.py``` which is located in the ```scripts``` folder has all the logic related to PySpark. You just need to run the climatechange notebook after the kafka-config notebook
+
+In the notebooks directory, the folder is split in to ```scripts``` (these contain the basic structure of the Stream Processing mechanism). You have the ClimateChange.ipynb and the temperature.ipynb notebooks. In the ClimateChange.ipynb we use the scripts to communicate with Apache Kafka and Apache Spark (using PySpark). The clean.py contains logic to delete from the climatechange database. test2.ipynb is just a folder were graphs about emissions are plotted. These are the graphs I was familiarized with when I began this assignment.
